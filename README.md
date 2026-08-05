@@ -15,9 +15,9 @@
 
 | Chapter | Topic | Key Interview Keywords |
 | :--- | :--- | :--- |
-| **[01-deadlock-livelock](./DeadLiveLock/README.md)** | 데드락과 라이브락 | `교착상태 4가지 조건`, `Lock Ordering`, `Livelock & Random Backoff` |
-| **[02-pessimistic-vs-optimistic-lock](./PessimisticOptimisticLock/README.md)** | 비관적 락 vs 낙관적 락 | `Lost Update`, `SELECT FOR UPDATE`, `@Version`, `Trade-off` |
-| **[03-update-without-where-lock](./UpdateWithoutWhere/README.md)** | WHERE 절 누락과 Table Lock | `Full Scan & Index Lock`, `Lock Wait Timeout`, `Chunking Strategy` |
+| **[01-deadlock-livelock](./src/main/java/DBTest/DBTest/DeadLiveLock/README.md)** | 데드락과 라이브락 | `교착상태 4가지 조건`, `Lock Ordering`, `Livelock & Random Backoff` |
+| **[02-pessimistic-vs-optimistic-lock](./src/main/java/DBTest/DBTest/DeadLiveLock/README.md)** | 비관적 락 vs 낙관적 락 | `Lost Update`, `SELECT FOR UPDATE`, `@Version`, `Trade-off` |
+| **[03-update-without-where-lock](./src/main/java/DBTest/DBTest/DeadLiveLocke/README.md)** | WHERE 절 누락과 Table Lock | `Full Scan & Index Lock`, `Lock Wait Timeout`, `Chunking Strategy` |
 
 
 

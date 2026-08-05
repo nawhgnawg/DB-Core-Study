@@ -1,4 +1,4 @@
-package DBTest.DBTest.Where;
+package DBTest.DBTest.UpdateWithoutWhere;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

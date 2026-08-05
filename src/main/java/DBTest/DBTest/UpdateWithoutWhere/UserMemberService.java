@@ -1,4 +1,4 @@
-package DBTest.DBTest.Where;
+package DBTest.DBTest.UpdateWithoutWhere;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

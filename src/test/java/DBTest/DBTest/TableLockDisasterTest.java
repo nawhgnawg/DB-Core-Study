@@ -1,8 +1,8 @@
 package DBTest.DBTest;
 
-import DBTest.DBTest.Where.UserMember;
-import DBTest.DBTest.Where.UserMemberRepository;
-import DBTest.DBTest.Where.UserMemberService;
+import DBTest.DBTest.UpdateWithoutWhere.UserMember;
+import DBTest.DBTest.UpdateWithoutWhere.UserMemberRepository;
+import DBTest.DBTest.UpdateWithoutWhere.UserMemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

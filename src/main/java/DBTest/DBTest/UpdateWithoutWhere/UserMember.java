@@ -1,4 +1,4 @@
-package DBTest.DBTest.Where;
+package DBTest.DBTest.UpdateWithoutWhere;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

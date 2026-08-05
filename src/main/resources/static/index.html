@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Session vs JWT (Redis) 테스트</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .container { display: flex; gap: 20px; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; }
+        .log-box { margin-top: 20px; background: #222; color: #0f0; padding: 15px; border-radius: 5px; height: 250px; overflow-y: auto; font-family: monospace; }
+        button { padding: 8px 12px; margin: 5px 0; cursor: pointer; border: none; border-radius: 4px; background: #007bff; color: white; width: 100%; text-align: left;}
+        button:hover { background: #0056b3; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-warning:hover { background: #e0a800; }
+        input { padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+    </style>
+</head>
+<body>
+
+<h1>🔒 인증 방식 테스트 화면 (Redis 적용)</h1>
+<div style="margin-bottom: 20px;">
+    <label>테스트할 ID 입력: </label>
+    <input type="text" id="userId" value="tester_01">
+</div>
+
+<div class="container">
+    <!-- 1. 세션 영역 (기존과 동일) -->
+    <div class="box">
+        <h2>🍪 세션 (Session)</h2>
+        <button onclick="sessionLogin()">1. 로그인 (세션 생성)</button>
+        <button onclick="sessionProfile()">2. 프로필 조회 (인증 확인)</button>
+        <button onclick="sessionLogout()" class="btn-danger">3. 로그아웃 (세션 파기)</button>
+    </div>
+
+    <!-- 2. JWT + Redis 영역 (업그레이드 됨) -->
+    <div class="box">
+        <h2>🔑 JWT + Redis</h2>
+        <button onclick="jwtLogin()">1. 로그인 (토큰 2개 발급)</button>
+        <button onclick="jwtProfile()">2. 프로필 조회 (Access Token 사용)</button>
+        <button onclick="jwtRefresh()" class="btn-warning">3. 🔄 토큰 재발급 (Refresh Token 사용)</button>
+        <button onclick="jwtLogout()" class="btn-danger">4. 로그아웃 (Redis DB 삭제)</button>
+    </div>
+</div>
+
+<!-- 로그 출력 창 -->
+<div class="log-box" id="logBox">
+    [시스템] 테스트를 시작합니다. 버튼을 클릭하세요.<br>
+</div>
+
+<script>
+    function log(message) {
+        const logBox = document.getElementById('logBox');
+        logBox.innerHTML += `> ${message}<br>`;
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    const getUserId = () => document.getElementById('userId').value;
+
+    // ==========================================
+    // [세션 방식] - 변경 없음
+    // ==========================================
+    async function sessionLogin() {
+        try {
+            const res = await fetch(`/api/session/login?userId=${getUserId()}`, { method: 'POST' });
+            log(`[세션-로그인] ${await res.text()}`);
+        } catch (e) { log(`[오류] ${e.message}`); }
+    }
+    async function sessionProfile() {
+        try {
+            const res = await fetch('/api/session/profile');
+            log(res.ok ? `[세션-조회 성공] ${await res.text()}` : `[세션-조회 실패] ${await res.text()}`);
+        } catch (e) { log(`[오류] ${e.message}`); }
+    }
+    async function sessionLogout() {
+        try {
+            const res = await fetch('/api/session/logout', { method: 'POST' });
+            log(`[세션-로그아웃] ${await res.text()}`);
+        } catch (e) { log(`[오류] ${e.message}`); }
+    }
+
+
+    // ==========================================
+    // [JWT + Redis 방식] - 실무형으로 완벽 업그레이드
+    // ==========================================
+
+    async function jwtLogin() {
+        try {
+            const res = await fetch(`/api/jwt/login?userId=${getUserId()}`, { method: 'POST' });
+
+            // ★ 변경점 1: 단순 텍스트가 아니라 JSON(Map)으로 받음
+            const data = await res.json();
+
+            // ★ 변경점 2: Access, Refresh 두 개의 토큰을 각각 따로 저장
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+
+            log(`[JWT-로그인 성공] 서버(Redis)에 Refresh Token 저장됨.`);
+            log(` - Access Token 로컬 저장 완료`);
+            log(` - Refresh Token 로컬 저장 완료`);
+        } catch (e) { log(`[오류] ${e.message}`); }
+    }
+
+    async function jwtProfile() {
+        // ★ 변경점 3: API 호출 시 'accessToken'을 꺼내서 사용
+        const token = localStorage.getItem('accessToken');
+        if (!token) { return log(`[JWT-조회 실패] Access Token이 없습니다.`); }
+
+        try {
+            const res = await fetch('/api/jwt/profile', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const text = await res.text();
+            log(res.ok ? `[JWT-조회 성공] ${text}` : `[JWT-조회 실패] ${text}`);
+        } catch (e) { log(`[오류] ${e.message}`); }
+    }
+
+    // ★ 신규 기능: 토큰 재발급 로직
+    async function jwtRefresh() {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) { return log(`[JWT-재발급 실패] Refresh Token이 없습니다. 다시 로그인하세요.`); }
+
+        try {
+            // 재발급 시에는 Authorization 헤더가 아니라 우리가 약속한 'Refresh-Token' 헤더에 담아 보냅니다.
+            const res = await fetch('/api/jwt/refresh', {
+                method: 'POST',
+                headers: { 'Refresh-Token': refreshToken }
+            });
+
+            if (res.ok) {
+                const newAccessToken = await res.text();
+                // 새로 발급받은 Access Token으로 기존 토큰을 덮어씌움
+                localStorage.setItem('accessToken', newAccessToken);
+                log(`[JWT-재발급 성공] 새로운 Access Token 발급 및 저장 완료!`);
+            } else {
+                const errorMsg = await res.text();
+                log(`[JWT-재발급 거절] ${errorMsg} (강제 로그아웃 필요)`);
+                // 서버가 거절했으므로 로컬 토큰 폐기
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+            }
+        } catch (e) { log(`[오류] ${e.message}`); }
+    }
+
+    async function jwtLogout() {
+        try {
+            // ★ 변경점 4: 예전에는 로컬 데이터만 지웠지만,
+            // 이제는 반드시 서버에 "Redis에서 내 토큰 지워줘!" 라고 요청해야 함 (강제 로그아웃)
+            const res = await fetch(`/api/jwt/logout?userId=${getUserId()}`, { method: 'POST' });
+            const text = await res.text();
+
+            // 그 후 브라우저의 지갑(LocalStorage) 비우기
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+
+            log(`[JWT-로그아웃] ${text}`);
+            log(` - 로컬 브라우저의 토큰들도 모두 폐기되었습니다.`);
+        } catch (e) { log(`[오류] ${e.message}`); }
+    }
+</script>
+</body>
+</html>

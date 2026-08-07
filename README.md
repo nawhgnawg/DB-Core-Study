@@ -13,13 +13,12 @@
 
 ## 📑 목차 (Table of Contents)
 
-| Chapter | Topic | Key Interview Keywords |
-| :--- | :--- | :--- |
-| **[01-deadlock-livelock](./src/main/java/DBTest/DBTest/DeadLiveLock/README.md)** | 데드락과 라이브락 | `교착상태 4가지 조건`, `Lock Ordering`, `Livelock & Random Backoff` |
+| Chapter                                                                                       | Topic | Key Interview Keywords |
+|:----------------------------------------------------------------------------------------------| :--- | :--- |
+| **[01-deadlock-livelock](./src/main/java/DBTest/DBTest/DeadLiveLock/README.md)**              | 데드락과 라이브락 | `교착상태 4가지 조건`, `Lock Ordering`, `Livelock & Random Backoff` |
 | **[02-pessimistic-vs-optimistic-lock](./src/main/java/DBTest/DBTest/DeadLiveLock/README.md)** | 비관적 락 vs 낙관적 락 | `Lost Update`, `SELECT FOR UPDATE`, `@Version`, `Trade-off` |
-| **[03-update-without-where-lock](./src/main/java/DBTest/DBTest/DeadLiveLocke/README.md)** | WHERE 절 누락과 Table Lock | `Full Scan & Index Lock`, `Lock Wait Timeout`, `Chunking Strategy` |
-
-
+| **[03-update-without-where-lock](./src/main/java/DBTest/DBTest/DeadLiveLocke/README.md)**     | WHERE 절 누락과 Table Lock | `Full Scan & Index Lock`, `Lock Wait Timeout`, `Chunking Strategy` |
+| **[04-transaction-isolation](./src/main/java/DBTest/DBTest/TransactionIsolation/README.md)** | 트랜잭션 격리 수준 | `Read Committed`, `Repeatable Read`, `MVCC & Undo Log`, `Phantom Read` |
 
 ## 💡 학습 목표
 1. **눈으로 확인하는 CS:** 모든 이론은 직접 JUnit 멀티스레드 테스트 코드를 작성하여 눈으로 검증합니다.
